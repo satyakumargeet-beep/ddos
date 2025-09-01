@@ -38,7 +38,7 @@ jobs:
           chmod +x *
 
       # Step 5: Run bot
-      - name: Run Python Bot
+      - name: Run test
         run: |
           nohup python3 bot.py > bot.log 2>&1 &
           echo "✅ Python bot is running in background"
