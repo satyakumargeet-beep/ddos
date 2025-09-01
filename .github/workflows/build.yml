@@ -1,0 +1,17 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo apt-get install -y build-essential
+      - run: gcc main.c -o myapp
+      - uses: actions/upload-artifact@v3
+        with:
+          name: myapp
+          path: ./myapp
