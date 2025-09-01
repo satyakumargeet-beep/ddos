@@ -1,0 +1,44 @@
+name: Python Bot Workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Update system packages
+      - name: Update System Packages
+        run: sudo apt-get update -y
+
+      # Step 3: Set up Python with cache
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: "pip"
+
+      # Step 4: Install dependencies
+      - name: Install Dependencies
+        run: |
+          pip install telebot 
+          pip install flask 
+          pip install aiogram 
+          pip install pyTelegramBotAPI 
+          pip install python-telegram-bot  
+          chmod +x *
+
+      # Step 5: Run bot
+      - name: Run Python Bot
+        run: |
+          nohup python3 bot.py > bot.log 2>&1 &
+          echo "✅ Python bot is running in background"
