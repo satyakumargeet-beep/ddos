@@ -20,12 +20,6 @@ jobs:
       - name: Update System Packages
         run: sudo apt-get update -y
 
-      # Step 3: Set up Python with cache
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: "pip"
 
       # Step 4: Install dependencies
       - name: Install Dependencies
