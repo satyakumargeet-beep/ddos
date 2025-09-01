@@ -1,16 +1,38 @@
-name: Test
+name: test
 
 on:
   workflow_run:
-    workflows: [ "Build" ]
-    types:
-      - completed
+    workflows: [ "build" ]   # listen for the workflow by its 'name'
+    types: [ completed ]
 
 jobs:
-  test:
+  run-tests:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - name: Download artifact from the build run
+        uses: dawidd6/action-download-artifact@v3
         with:
-          name: myapp
-      - run: ./myapp --version  # Example test
+          workflow: build.yml             # file name of the workflow to fetch from
+          run_id: ${{ github.event.workflow_run.id }}
+          name: myapp-linux-amd64
+          path: dist
+
+      - name: Make executable
+        run: chmod +x dist/myapp
+
+      - name: Sanity test: version prints
+        run: ./dist/myapp --version
+
+      - name: Behavior test: prints greeting
+        run: |
+          output=$(./dist/myapp)
+          echo "$output"
+          [[ "$output" == *"Hello from myapp!"* ]]
+
+      # Re-upload a verified artifact for the Release workflow to pick up
+      - name: Upload verified artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: myapp-verified-linux-amd64
+          path: dist/myapp
