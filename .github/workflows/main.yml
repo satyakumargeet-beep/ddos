@@ -30,12 +30,8 @@ jobs:
       # Step 4: Install dependencies
       - name: Install Dependencies
         run: |
-          pip install telebot 
-          pip install flask 
-          pip install aiogram 
-          pip install pyTelegramBotAPI 
-          pip install python-telegram-bot  
-          chmod +x *
+         pip install telebot flask aiogram pyTelegramBotAPI python-telegram-bot  
+         chmod +x *
 
       # Step 5: Run bot
       - name: Run test
