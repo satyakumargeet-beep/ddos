@@ -1,38 +1,39 @@
-name: test
+name: release
 
 on:
   workflow_run:
-    workflows: [ "build" ]   # listen for the workflow by its 'name'
+    workflows: [ "test" ]
     types: [ completed ]
 
+permissions:
+  contents: write   # needed to create a release
+
 jobs:
-  run-tests:
+  make-release:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifact from the build run
+      - name: Download verified artifact from Test run
         uses: dawidd6/action-download-artifact@v3
         with:
-          workflow: build.yml             # file name of the workflow to fetch from
+          workflow: test.yml
           run_id: ${{ github.event.workflow_run.id }}
-          name: myapp-linux-amd64
+          name: myapp-verified-linux-amd64
           path: dist
 
-      - name: Make executable
-        run: chmod +x dist/myapp
+      - name: Show file
+        run: ls -lh dist
 
-      - name: Sanity test: version prints
-        run: ./dist/myapp --version
-
-      - name: Behavior test: prints greeting
-        run: |
-          output=$(./dist/myapp)
-          echo "$output"
-          [[ "$output" == *"Hello from myapp!"* ]]
-
-      # Re-upload a verified artifact for the Release workflow to pick up
-      - name: Upload verified artifact
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: myapp-verified-linux-amd64
-          path: dist/myapp
+          tag_name: v${{ github.run_number }}
+          name: "myapp v${{ github.run_number }}"
+          body: |
+            Automated release from CI chain
+            - Built on ubuntu-latest
+            - Verified via Test workflow
+          files: |
+            dist/myapp
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
